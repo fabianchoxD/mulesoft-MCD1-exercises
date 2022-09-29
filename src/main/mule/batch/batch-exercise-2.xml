@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="batchExercise2" doc:id="da2edd8e-893f-4d39-8579-e137c80532d3" >
+		<http:listener doc:name="/batch2" doc:id="43fa63a3-0d30-4c21-a9c6-ae8d21933ed8" config-ref="HTTP_Listener_config" path="/batch2" />
+		<set-variable value="#[1]" doc:name="counter =1" doc:id="30cbe1eb-5c76-4774-8a1d-8b897936d374" variableName="counter" />
+		<set-payload value="#[[1,2,3]]" doc:name="[1,2,3]" doc:id="d61c283b-06a0-456b-bff1-0fab976a5892" />
+		<batch:job jobName="batch-containsBBatch_Job-self2" doc:id="b3cb4acf-d005-4aee-9baf-0bcd436ccb7e" >
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="1586216b-83b4-468c-92d2-1addbf8b35d9" >
+					<set-variable value="#[vars.counter + 20]" doc:name="batchStepPayload + 20" doc:id="a93513eb-fae3-4962-acb6-f97eda74ce77" variableName="counter" />
+					<set-variable value="#[vars.counter]" doc:name="stepVar" doc:id="cc1a9364-3d3a-493e-9b93-e226a7359f07" variableName="stepVar" />
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<ee:transform doc:name="set payload" doc:id="78440378-f63e-41e6-bc0f-2d73a958eccd" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<logger level="INFO" doc:name="log variables" doc:id="4cba9af7-1897-49d3-9ccc-58a2690586ce" message="#[%dw 2.0 output application/json --- [vars.counter, vars.stepVar, payload]]" />
+			</batch:on-complete>
+		</batch:job>
+	</flow>
+</mule>
